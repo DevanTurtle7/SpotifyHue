@@ -4,7 +4,7 @@ function generateUsername() {
 }
 
 function main() {
-    ip = prompt("enter ip:")
+    var ip = prompt("enter ip:")
     $.get("https://" + ip + "/api/newdeveloper", function(data, status){
         alert("Data: " + data + "\nStatus: " + status);
     });
