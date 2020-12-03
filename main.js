@@ -3,13 +3,51 @@ function generateUsername() {
     return "temporaryUsername"
 }
 
-function main() {
-    console.log("running");
-    var ip = prompt("enter ip:");
+const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
 
-    $.get("https://" + ip + "/api/newdeveloper", function(data, status){
-        alert("Data: " + data + "\nStatus: " + status);
-    });
+function pingBridge(ip) {
+    var username = generateUsername();
+    $.ajax({
+        url: "https://" + ip + "/api",
+        type: "POST",
+        data: JSON.stringify({ "devicetype": username }),
+        success: async function (data) {
+            console.log(data);
+            if (data[0].error != null) {
+                return null
+            } else {
+                var username = data[0].success.username
+                return username
+            }
+        }, error: function (data) {
+            console.log("error!")
+            console.log(data)
+        }
+    })
+}
+
+async function connectToBridge(ip) {
+    var connectedToBridge = false;
+    var bridgeUsername = ""
+
+    while (!connectedToBridge) {
+        var response = pingBridge(ip)
+
+        if (response != null) {
+            bridgeUsername = response
+            connectedToBridge = true;
+        }
+
+        await sleep(5000)
+    }
+    console.log(response)
+
+    return bridgeUsername
+}
+
+function main() {
+    //var ip = prompt("enter ip:");
+    connectToBridge(ip)
 }
 
 $(document).ready(main);
