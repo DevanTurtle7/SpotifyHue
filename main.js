@@ -11,7 +11,7 @@ function pingBridge(ip) {
         url: "https://" + ip + "/api",
         type: "POST",
         data: JSON.stringify({ "devicetype": username }),
-        success: async function (data) {
+        success: function (data) {
             console.log(data);
             if (data[0].error != null) {
                 return null
@@ -19,7 +19,8 @@ function pingBridge(ip) {
                 var username = data[0].success.username
                 return username
             }
-        }, error: function (data) {
+        },
+        error: function (data) {
             console.log("error!")
             console.log(data)
         }
@@ -45,9 +46,25 @@ async function connectToBridge(ip) {
     return bridgeUsername
 }
 
+async function getCurrentSong() {
+    $.ajax({
+        url: "https://api.spotify.com/v1/me/player/currently-playing",
+        type: "GET",
+        success: function(data) {
+            console.log("success")
+            console.log(data)
+        },
+        error: function(data) {
+            console.log("error")
+            console.log(data)
+        }
+    })
+}
+
 function main() {
     //var ip = prompt("enter ip:");
-    connectToBridge(ip)
+    //connectToBridge(ip)
+    getCurrentSong()
 }
 
 $(document).ready(main);
