@@ -10,7 +10,7 @@ function pingBridge(ip) {
     $.ajax({
         url: "https://" + ip + "/api",
         type: "POST",
-        data: JSON.stringify({ "devicetype": username }),
+        data: JSON.stringify({"devicetype": username}),
         success: function (data) {
             console.log(data);
             if (data[0].error != null) {
@@ -48,7 +48,12 @@ async function connectToBridge(ip) {
 
 async function getCurrentSong() {
     $.ajax({
-        url: "https://api.spotify.com/v1/me/player/currently-playing",
+        url: "https://accounts.spotify.com/authorize",
+        data: JSON.stringify({
+            "client_id": client_id,
+            "response_type": "code",
+            "redirect_uri": "https://devanturtle7.github.io/SpotifyHue/api/v1/logging-in"
+        }),
         type: "GET",
         success: function(data) {
             console.log("success")
@@ -59,6 +64,10 @@ async function getCurrentSong() {
             console.log(data)
         }
     })
+}
+
+function spotifyLogin() {
+    location.replace("https://accounts.spotify.com/authorize?response_type=code&client_id="+client_id+"&redirect_uri="+redirect_uri);
 }
 
 function main() {
