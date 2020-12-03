@@ -46,14 +46,9 @@ async function connectToBridge(ip) {
     return bridgeUsername
 }
 
-async function getCurrentSong() {
+function getCurrentSong() {
     $.ajax({
-        url: "https://accounts.spotify.com/authorize",
-        data: JSON.stringify({
-            "client_id": client_id,
-            "response_type": "code",
-            "redirect_uri": "https://devanturtle7.github.io/SpotifyHue/api/v1/logging-in"
-        }),
+        url: "https://accounts.spotify.com/authorize?response_type=code&client_id="+client_id+"&redirect_uri="+redirect_uri,
         type: "GET",
         success: function(data) {
             console.log("success")
@@ -61,7 +56,6 @@ async function getCurrentSong() {
         },
         error: function(data) {
             console.log("error")
-            console.log(data)
         }
     })
 }
@@ -73,7 +67,7 @@ function spotifyLogin() {
 function main() {
     //var ip = prompt("enter ip:");
     //connectToBridge(ip)
-    getCurrentSong()
+    //getCurrentSong()
 }
 
 $(document).ready(main);
