@@ -68,7 +68,6 @@ function getToken() {
     var responseQuery = window.location.search
     var re = /[&?]code=([^&]*)/
     var code = re.exec(responseQuery)[1]
-    console.log(code)
     var client_secret = prompt("Enter client secret")
 
     $.ajax({
@@ -82,7 +81,11 @@ function getToken() {
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
             'Authorization': 'Basic ' + btoa(client_id + ':' + client_secret)
-        }})
+        },
+        success: function(data) {
+            console.log(data)
+        }
+    })
 }
 
 function main() {
