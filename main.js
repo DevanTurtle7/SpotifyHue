@@ -112,6 +112,7 @@ function main() {
     //var ip = prompt("enter ip:");
     //connectToBridge(ip)
     //getCurrentSong()
+
     firebase.initializeApp({
         apiKey: "AIzaSyCoWUDx03Onb9JDj2MOqvjiTUzHAVrwzyY",
         authDomain: "spotify-hue.firebaseapp.com",
@@ -128,7 +129,6 @@ function main() {
     
     getClientSecret().then(function(value) {
         client_secret = value
-        console.log(client_secret)
     })
 
 }
