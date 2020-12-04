@@ -1,3 +1,20 @@
+
+
+async function getClientSecret() {
+    var docRef = db.collection("credentials").doc("client_secret")
+    
+    var data = await docRef.get().then(function(doc) {
+        if (doc.exists) {
+            return doc.data()
+        }
+    }).catch(function(error) {
+        console.log("Error occurred getting secret. Trying again...")
+        return getClientSecret()
+    })
+
+    return data.value
+}
+
 function generateUsername() {
     return "temporaryUsername"
 }
@@ -81,10 +98,10 @@ function getToken() {
             'Content-Type': 'application/x-www-form-urlencoded',
             'Authorization': 'Basic ' + btoa(client_id + ':' + client_secret)
         },
-        success: function(data) {
+        success: function (data) {
             console.log(data)
         },
-        error: function(data) {
+        error: function (data) {
             console.log("error!")
             console.log(data)
         }
@@ -95,6 +112,25 @@ function main() {
     //var ip = prompt("enter ip:");
     //connectToBridge(ip)
     //getCurrentSong()
+    firebase.initializeApp({
+        apiKey: "AIzaSyCoWUDx03Onb9JDj2MOqvjiTUzHAVrwzyY",
+        authDomain: "spotify-hue.firebaseapp.com",
+        projectId: "spotify-hue",
+        storageBucket: "spotify-hue.appspot.com",
+        messagingSenderId: "18502599113",
+        appId: "1:18502599113:web:c7627cea0aa74a3efd6818",
+        measurementId: "G-XZ8PE0K3Y1"
+    });
+
+    db = firebase.firestore()
+
+    let client_secret;
+    
+    getClientSecret().then(function(value) {
+        client_secret = value
+        console.log(client_secret)
+    })
+
 }
 
 $(document).ready(main);
