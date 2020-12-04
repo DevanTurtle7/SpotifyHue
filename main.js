@@ -10,7 +10,7 @@ function pingBridge(ip) {
     $.ajax({
         url: "https://" + ip + "/api",
         type: "POST",
-        data: JSON.stringify({"devicetype": username}),
+        data: JSON.stringify({ "devicetype": username }),
         success: function (data) {
             console.log(data);
             if (data[0].error != null) {
@@ -48,20 +48,35 @@ async function connectToBridge(ip) {
 
 function getCurrentSong() {
     $.ajax({
-        url: "https://accounts.spotify.com/authorize?response_type=code&client_id="+client_id+"&redirect_uri="+redirect_uri,
+        url: "https://accounts.spotify.com/authorize?response_type=code&client_id=" + client_id + "&redirect_uri=" + redirect_uri,
         type: "GET",
-        success: function(data) {
+        success: function (data) {
             console.log("success")
             console.log(data)
         },
-        error: function(data) {
+        error: function (data) {
             console.log("error")
         }
     })
 }
 
 function spotifyLogin() {
-    location.replace("https://accounts.spotify.com/authorize?response_type=code&client_id="+client_id+"&redirect_uri="+redirect_uri);
+    location.replace("https://accounts.spotify.com/authorize?response_type=code&client_id=" + client_id + "&redirect_uri=" + redirect_uri);
+}
+
+function getToken() {
+    $.ajax({
+        type: "POST",
+        data: JSON.stringify({
+            "url": 'https://accounts.spotify.com/api/token',
+            "code": code,
+            "redirect_uri": redirect_uri,
+            "grant_type": 'client_credentials',
+        }),
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': 'Basic ' + btoa(client_id + ':' + client_secret)
+        }})
 }
 
 function main() {
