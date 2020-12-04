@@ -67,12 +67,12 @@ function spotifyLogin() {
 function getToken() {
     $.ajax({
         type: "POST",
-        data: JSON.stringify({
-            "url": 'https://accounts.spotify.com/api/token',
+        url: 'https://accounts.spotify.com/api/token',
+        data: {
+            "grant_type": 'authorization_code',
             "code": code,
             "redirect_uri": redirect_uri,
-            "grant_type": 'client_credentials',
-        }),
+        },
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
             'Authorization': 'Basic ' + btoa(client_id + ':' + client_secret)
