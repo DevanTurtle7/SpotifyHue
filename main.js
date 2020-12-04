@@ -1,7 +1,3 @@
-console.log(1)
-require('dotenv').config()
-console.log(process.env.CLIENT_SECRET)
-
 function generateUsername() {
     return "temporaryUsername"
 }

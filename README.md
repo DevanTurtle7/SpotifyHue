@@ -1,1 +1,1 @@
-# SpotifyHue
+# spotify-hue
