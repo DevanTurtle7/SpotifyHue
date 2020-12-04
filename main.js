@@ -69,7 +69,6 @@ function getToken() {
     var re = /[&?]code=([^&]*)/
     var code = re.exec(responseQuery)[1]
     console.log(code)
-    var client_secret = prompt("Enter client secret")
 
     $.ajax({
         type: "POST",
