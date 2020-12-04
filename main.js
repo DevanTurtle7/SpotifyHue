@@ -66,10 +66,8 @@ function spotifyLogin() {
 
 function getToken() {
     var responseQuery = window.location.search
-    var regex = new RegExp("code.*\&")
-    console.log(responseQuery)
-    // Use regex to find the code and slice off the "code=" at the beginning and the "&" at the end
-    var code = regex.exec(responseQuery).slice(4, -1)
+    var re = /[&?]code=([^&]*)/
+    var code = re.exec(responseQuery)[1]
     console.log(code)
 
     $.ajax({
@@ -84,6 +82,12 @@ function getToken() {
             'Content-Type': 'application/x-www-form-urlencoded',
             'Authorization': 'Basic ' + btoa(client_id + ':' + client_secret)
         }})
+}
+
+function testRegex() {
+    var string = "?code=AQBQ1Mg4MenyNP6VhVJhewz9AMgcTP90q_tGMVUsM&test=GXkMg1FkeW4MDoFMnJp9CtzlzoBFbRV7nRoCVDer522iPwPze1quaiXDl1xOdvlsOL7J2b01Tv-Tokx1L6teJzVpwfRnnkil49NJeto4MWHVAqEaROt6L3zmHoFQC_sdU5of-iII8FdTtBLB3iG7Q"
+    var regex = new RegExp("code.*\&")
+    console.log(regex.exec(string))
 }
 
 function main() {
