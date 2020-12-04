@@ -65,6 +65,13 @@ function spotifyLogin() {
 }
 
 function getToken() {
+    var responseQuery = window.location.search
+    var regex = new RegExp("code.*\&")
+    console.log(responseQuery)
+    // Use regex to find the code and slice off the "code=" at the beginning and the "&" at the end
+    var code = regex.exec(responseQuery).slice(4, -1)
+    console.log(code)
+
     $.ajax({
         type: "POST",
         url: 'https://accounts.spotify.com/api/token',
