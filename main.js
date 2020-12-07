@@ -121,7 +121,7 @@ function main() {
     //var ip = prompt("enter ip:");
     //connectToBridge(ip)
     //getCurrentSong()
-    console.log("updated");
+    console.log("updated 2");
 
     firebase.initializeApp({
         apiKey: "AIzaSyCoWUDx03Onb9JDj2MOqvjiTUzHAVrwzyY",
