@@ -87,6 +87,7 @@ function getToken() {
             },
             success: function (data) {
                 console.log(data)
+                return data.access_token;
             },
             error: function (data) {
                 console.log("error!")
