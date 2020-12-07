@@ -2,12 +2,12 @@
 
 async function getClientSecret() {
     var docRef = db.collection("credentials").doc("client_secret")
-    
-    var data = await docRef.get().then(function(doc) {
+
+    var data = await docRef.get().then(function (doc) {
         if (doc.exists) {
             return doc.data()
         }
-    }).catch(function(error) {
+    }).catch(function (error) {
         console.log("Error occurred getting secret. Trying again...")
         return getClientSecret()
     })
@@ -81,30 +81,32 @@ function spotifyLogin() {
 }
 
 function getToken() {
-    var responseQuery = window.location.search
-    var re = /[&?]code=([^&]*)/
-    var code = re.exec(responseQuery)[1]
-    var client_secret = prompt("Enter client secret")
+    getClientSecret().then(function (value) {
+        var responseQuery = window.location.search
+        var re = /[&?]code=([^&]*)/
+        var code = re.exec(responseQuery)[1]
+        var client_secret = prompt("Enter client secret")
 
-    $.ajax({
-        type: "POST",
-        url: 'https://accounts.spotify.com/api/token',
-        data: {
-            "grant_type": 'authorization_code',
-            "code": code,
-            "redirect_uri": redirect_uri,
-        },
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Authorization': 'Basic ' + btoa(client_id + ':' + client_secret)
-        },
-        success: function (data) {
-            console.log(data)
-        },
-        error: function (data) {
-            console.log("error!")
-            console.log(data)
-        }
+        $.ajax({
+            type: "POST",
+            url: 'https://accounts.spotify.com/api/token',
+            data: {
+                "grant_type": 'authorization_code',
+                "code": code,
+                "redirect_uri": redirect_uri,
+            },
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Authorization': 'Basic ' + btoa(client_id + ':' + client_secret)
+            },
+            success: function (data) {
+                console.log(data)
+            },
+            error: function (data) {
+                console.log("error!")
+                console.log(data)
+            }
+        })
     })
 }
 
@@ -126,8 +128,8 @@ function main() {
     db = firebase.firestore()
 
     let client_secret;
-    
-    getClientSecret().then(function(value) {
+
+    getClientSecret().then(function (value) {
         client_secret = value
     })
 
