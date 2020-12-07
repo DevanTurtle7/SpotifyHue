@@ -63,7 +63,7 @@ async function connectToBridge(ip) {
 }
 
 function spotifyLogin() {
-    location.replace("https://accounts.spotify.com/authorize?response_type=code&client_id=" + client_id + "&redirect_uri=" + redirect_ur + "&scope=user-read-currently-playing");
+    location.replace("https://accounts.spotify.com/authorize?response_type=code&client_id=" + client_id + "&redirect_uri=" + redirect_uri + "&scope=user-read-currently-playing");
 }
 
 function getToken() {
