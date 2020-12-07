@@ -62,20 +62,6 @@ async function connectToBridge(ip) {
     return bridgeUsername
 }
 
-function getCurrentSong() {
-    $.ajax({
-        url: "https://accounts.spotify.com/authorize?response_type=code&client_id=" + client_id + "&redirect_uri=" + redirect_uri,
-        type: "GET",
-        success: function (data) {
-            console.log("success")
-            console.log(data)
-        },
-        error: function (data) {
-            console.log("error")
-        }
-    })
-}
-
 function spotifyLogin() {
     location.replace("https://accounts.spotify.com/authorize?response_type=code&client_id=" + client_id + "&redirect_uri=" + redirect_uri);
 }
@@ -107,6 +93,28 @@ function getToken() {
                 console.log(data)
             }
         })
+    })
+}
+
+function getSongHandler() {
+    getClientSecret().then(function (value) {
+        client_secret = value
+        getCurrentSong(client_secret)
+    })
+}
+
+function getCurrentSong(clientSecret) {
+    $.ajax({
+        type: "GET",
+        url: "https://api.spotify.com/v1/me/player/currently-playing",
+        headers: {
+            "Authorization": "user-read-currently-playing"
+        }, success: function(data) {
+            console.log(data)
+        }, error: function(data) {
+            console.log("Error!")
+            console.log(data)
+        }
     })
 }
 
