@@ -63,7 +63,7 @@ async function connectToBridge(ip) {
 }
 
 function spotifyLogin() {
-    location.replace("https://accounts.spotify.com/authorize?response_type=code&client_id=" + client_id + "&redirect_uri=" + redirect_uri);
+    location.replace("https://accounts.spotify.com/authorize?response_type=code&client_id=" + client_id + "&redirect_uri=" + redirect_ur + "&scope=user-read-currently-playing");
 }
 
 function getToken() {
@@ -96,25 +96,24 @@ function getToken() {
     })
 }
 
-function getSongHandler() {
-    getClientSecret().then(function (value) {
-        client_secret = value
-        getCurrentSong(client_secret)
-    })
-}
-
-function getCurrentSong(clientSecret) {
-    $.ajax({
-        type: "GET",
-        url: "https://api.spotify.com/v1/me/player/currently-playing",
-        headers: {
-            "Authorization": "user-read-currently-playing"
-        }, success: function(data) {
-            console.log(data)
-        }, error: function(data) {
-            console.log("Error!")
-            console.log(data)
-        }
+function getCurrentSong() {
+    getToken().then(function(value) {
+        var accessToken = value
+    
+        $.ajax({
+            type: "GET",
+            url: "https://api.spotify.com/v1/me/player/currently-playing",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Bearer "+ accessToken
+            }, success: function(data) {
+                console.log(data)
+            }, error: function(data) {
+                console.log("Error!")
+                console.log(data)
+            }
+        })
     })
 }
 
@@ -122,6 +121,7 @@ function main() {
     //var ip = prompt("enter ip:");
     //connectToBridge(ip)
     //getCurrentSong()
+    console.log("updated");
 
     firebase.initializeApp({
         apiKey: "AIzaSyCoWUDx03Onb9JDj2MOqvjiTUzHAVrwzyY",
