@@ -42,6 +42,7 @@ function pingBridge(ip) {
 }
 
 async function connectToBridge(ip) {
+    // Try refactoring with promises
     var connectedToBridge = false;
     var bridgeUsername = ''
 
@@ -68,6 +69,7 @@ async function getToken(clientSecret) {
     var responseQuery = window.location.search
     var re = /[&?]code=([^&]*)/
     var code = re.exec(responseQuery)[1]
+
     const result = new Promise(function (resolve, reject) {
         $.ajax({
             type: 'POST',
@@ -84,13 +86,10 @@ async function getToken(clientSecret) {
             success: function (data) {
                 console.log('token retrieved')
                 console.log(data)
-                var accessToken = data.access_token;
-                resolve(accessToken)
+                resolve(data.access_token)
             },
             error: function (data) {
-                console.log('token error')
-                console.log(data)
-                reject("error")
+                reject('token error')
             }
         })
     })
@@ -99,27 +98,30 @@ async function getToken(clientSecret) {
 }
 
 async function getRefreshToken(clientSecret, refreshToken) {
-    $.ajax({
-        type: 'POST',
-        url: 'https://accounts.spotify.com/api/token',
-        data: {
-            'grant_type': 'refresh_token',
-            'refresh_token': refreshToken,
-        },
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Authorization': 'Basic ' + btoa(client_id + ':' + clientSecret)
-        },
-        success: function (data) {
-            console.log('token retrieved')
-            console.log(data)
-            return data.access_token;
-        },
-        error: function (data) {
-            console.log('token error')
-            console.log(data)
-        }
+    const result = new Promise(function(resolve, reject) {
+        $.ajax({
+            type: 'POST',
+            url: 'https://accounts.spotify.com/api/token',
+            data: {
+                'grant_type': 'refresh_token',
+                'refresh_token': refreshToken,
+            },
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Authorization': 'Basic ' + btoa(client_id + ':' + clientSecret)
+            },
+            success: function (data) {
+                console.log('token retrieved')
+                console.log(data)
+                resolve(data.access_token);
+            },
+            error: function (data) {
+                reject('token refresh error')
+            }
+        })
     })
+
+    return result
 }
 
 async function getCurrentSong() {
@@ -159,15 +161,8 @@ async function main() {
 
     db = firebase.firestore()
 
-
-    getClientSecret().then(async function (clientSecret) {
-            
-        token = await getToken(clientSecret)
-        console.log(token)
-    })
-
-
-
+    var clientSecret = await getClientSecret();
+    var token = await getToken(clientSecret);
 }
 
 $(document).ready(main);
