@@ -98,14 +98,14 @@ async function getToken(clientSecret) {
     return result
 }
 
-async function getRefreshToken(clientSecret, refreshToken) {
+async function getRefreshToken(clientSecret, accessToken) {
     const result = new Promise(function (resolve, reject) {
         $.ajax({
             type: 'POST',
             url: 'https://accounts.spotify.com/api/token',
             data: {
                 'grant_type': 'refresh_token',
-                'refresh_token': refreshToken,
+                'refresh_token': accessToken,
             },
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -125,24 +125,32 @@ async function getRefreshToken(clientSecret, refreshToken) {
     return result
 }
 
-async function getCurrentSong() {
-    var accessToken = await getToken()
+async function getCurrentSong(refreshToken) {
+    var clientSecret = await getClientSecret()
+    var accessToken = await getRefreshToken(clientSecret, refreshToken)
     console.log(accessToken + ' is token')
 
-    $.ajax({
-        type: 'GET',
-        url: 'https://api.spotify.com/v1/me/player/currently-playing',
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + accessToken
-        }, success: function (data) {
-            console.log(data)
-        }, error: function (data) {
-            console.log('Error!')
-            console.log(data)
-        }
+    const result = new Promise(function(resolve, reject) {
+        $.ajax({
+            type: 'GET',
+            url: 'https://api.spotify.com/v1/me/player/currently-playing',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + accessToken
+            }, success: function (data) {
+                console.log(data)
+                var image = data.item.album.images[0].url
+                resolve(image)
+            }, error: function (data) {
+                console.log('Error!')
+                console.log(data)
+                reject('error')
+            }
+        })
     })
+
+    return result
 }
 
 async function main() {
@@ -168,6 +176,11 @@ async function main() {
 
     console.log(token)
     console.log(refresh)
+
+    image = await getCurrentSong(refresh)
+    console.log(image)
+    $('#currentAlbum').attr('src', image)
+
 }
 
 $(document).ready(main);

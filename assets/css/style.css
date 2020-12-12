@@ -1,0 +1,10 @@
+#currentAlbum {
+    width: 100px;
+    height: 100px;
+}
+
+#colorBlock {
+    width: 100px;
+    height: 100px;
+    border-style: solid;
+}
