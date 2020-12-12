@@ -86,9 +86,10 @@ async function getToken(clientSecret) {
             success: function (data) {
                 console.log('token retrieved')
                 console.log(data)
-                resolve(data.access_token)
+                resolve(data)
             },
             error: function (data) {
+                console.log(data)
                 reject('token error')
             }
         })
@@ -98,7 +99,7 @@ async function getToken(clientSecret) {
 }
 
 async function getRefreshToken(clientSecret, refreshToken) {
-    const result = new Promise(function(resolve, reject) {
+    const result = new Promise(function (resolve, reject) {
         $.ajax({
             type: 'POST',
             url: 'https://accounts.spotify.com/api/token',
@@ -147,7 +148,6 @@ async function getCurrentSong() {
 async function main() {
     //var ip = prompt('enter ip:');
     //connectToBridge(ip)
-    //getCurrentSong()
 
     firebase.initializeApp({
         apiKey: 'AIzaSyCoWUDx03Onb9JDj2MOqvjiTUzHAVrwzyY',
@@ -162,7 +162,12 @@ async function main() {
     db = firebase.firestore()
 
     var clientSecret = await getClientSecret();
-    var token = await getToken(clientSecret);
+    var tokenData = await getToken(clientSecret);
+    var token = tokenData.access_token
+    var refresh = tokenData.refresh_token
+
+    console.log(token)
+    console.log(refresh)
 }
 
 $(document).ready(main);

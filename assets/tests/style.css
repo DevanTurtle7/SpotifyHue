@@ -1,0 +1,68 @@
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0 10px;
+}
+
+body {
+    background-color: whitesmoke;
+    align-items: center;
+    display: flex;
+    font-family: 'Roboto', sans-serif;
+    font-size: 14px;
+    font-weight: 300;
+    justify-content: center;
+}
+
+h1 {
+    color: white;
+    font-size: 4em;
+    font-weight: 100;
+    line-height: 1em;
+    margin: 0 0 1.5rem 0;
+    text-align: center;
+}
+
+img {
+    height: 58%;
+    object-fit: cover;
+    object-position: center;
+    width: 100%;
+}
+
+
+li {
+    flex: 1;
+    padding: 0.5em;
+    text-align: center;
+}
+
+p {
+    font-size: 1.3em;
+    font-weight: 700;
+    margin: 0;
+}
+
+section {
+    background-color: whitesmoke;
+    height: 400px;
+    max-width: 100%;
+    overflow: hidden;
+    padding: 20px;
+    width: 800px;
+}
+
+small {
+    font-weight: 500;
+}
+
+ul {
+    display: flex;
+    flex-direction: row;
+    list-style: none;
+    padding: 0;
+}
