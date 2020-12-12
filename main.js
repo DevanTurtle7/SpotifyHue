@@ -68,7 +68,13 @@ function spotifyLogin() {
 async function getToken(clientSecret) {
     var responseQuery = window.location.search
     var re = /[&?]code=([^&]*)/
-    var code = re.exec(responseQuery)[1]
+    var code
+    
+    try {
+        code = re.exec(responseQuery)[1]
+    } catch {
+        spotifyLogin()
+    }
 
     const result = new Promise(function (resolve, reject) {
         $.ajax({
@@ -84,7 +90,6 @@ async function getToken(clientSecret) {
                 'Authorization': 'Basic ' + btoa(client_id + ':' + clientSecret)
             },
             success: function (data) {
-                console.log('token retrieved')
                 console.log(data)
                 resolve(data)
             },
@@ -112,8 +117,6 @@ async function getRefreshToken(clientSecret, accessToken) {
                 'Authorization': 'Basic ' + btoa(client_id + ':' + clientSecret)
             },
             success: function (data) {
-                console.log('token retrieved')
-                console.log(data)
                 resolve(data.access_token);
             },
             error: function (data) {
@@ -128,9 +131,8 @@ async function getRefreshToken(clientSecret, accessToken) {
 async function getCurrentSong(refreshToken) {
     var clientSecret = await getClientSecret()
     var accessToken = await getRefreshToken(clientSecret, refreshToken)
-    console.log(accessToken + ' is token')
 
-    const result = new Promise(function(resolve, reject) {
+    const result = new Promise(function (resolve, reject) {
         $.ajax({
             type: 'GET',
             url: 'https://api.spotify.com/v1/me/player/currently-playing',
@@ -139,12 +141,9 @@ async function getCurrentSong(refreshToken) {
                 'Content-Type': 'application/json',
                 'Authorization': 'Bearer ' + accessToken
             }, success: function (data) {
-                console.log(data)
                 var image = data.item.album.images[0].url
                 resolve(image)
             }, error: function (data) {
-                console.log('Error!')
-                console.log(data)
                 reject('error')
             }
         })
@@ -156,26 +155,23 @@ async function getCurrentSong(refreshToken) {
 function getPalette(id) {
     "use strict";
     var image = document.getElementById(id)
-    console.log(image)
 
     var vibrant = new Vibrant(image)
     var swatches = vibrant.swatches()
+
+    return swatches.Vibrant.getHex()
+}
+
+async function setup() {
+    var clientSecret = await getClientSecret();
+    var tokenData = await getToken(clientSecret);
+    var token = tokenData.access_token
+    var refresh = tokenData.refresh_token
     
-        for (var swatch in swatches) {
-            if (swatches.hasOwnProperty(swatch) && swatches[swatch]) {
-                if (swatch == 'Vibrant') {
-                    console.log(swatch, swatches[swatch].getHex());
-                    var swatchColor = swatches[swatch].getHex()
-                    $('#colorBlock').css('background-color', swatchColor)
-                }
-            }
-        }
+    return refresh
 }
 
 async function main() {
-    //var ip = prompt('enter ip:');
-    //connectToBridge(ip)
-
     firebase.initializeApp({
         apiKey: 'AIzaSyCoWUDx03Onb9JDj2MOqvjiTUzHAVrwzyY',
         authDomain: 'spotify-hue.firebaseapp.com',
@@ -188,26 +184,43 @@ async function main() {
 
     db = firebase.firestore()
 
-    var clientSecret = await getClientSecret();
-    var tokenData = await getToken(clientSecret);
-    var token = tokenData.access_token
-    var refresh = tokenData.refresh_token
+    //var ip = prompt('enter ip:');
+    //connectToBridge(ip)
 
-    console.log(token)
-    console.log(refresh)
+    var refreshToken
+    var time = new Date().getTime() / 1000
 
-    setInterval(async function(){
-        image = await getCurrentSong(refresh)
-        console.log(image)
+    if (localStorage.getItem('expires') == null) {
+        refreshToken = await setup()
+        if (refreshToken != null) {
+            localStorage.setItem('refreshToken', refreshToken)
+            localStorage.setItem('expires', time + 3600)
+        } else {
+            spotifyLogin()
+        }
+    } else {
+        var expires = localStorage.getItem('expires')
+        if (time < expires) {
+            refreshToken = localStorage.getItem('refreshToken')
+        } else {
+            spotifyLogin()
+        }
+    }
+
+    console.log(1)
+    console.log(2)
+
+    setInterval(async function () {
+        image = await getCurrentSong(refreshToken)
         $('#currentAlbum').attr('src', image)
     }, 2000);
 }
 
 
-$(document).ready(function() {
+$(document).ready(function () {
     main()
-    document.getElementById('currentAlbum').addEventListener('load', function() {
-        console.log('LOADED')
-        getPalette('currentAlbum')
-    })    
+    document.getElementById('currentAlbum').addEventListener('load', function () {
+        var color = getPalette('currentAlbum')
+        $('#colorBlock').css('background-color', color)
+    })
 });
