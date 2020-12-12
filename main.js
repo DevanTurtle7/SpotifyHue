@@ -153,6 +153,25 @@ async function getCurrentSong(refreshToken) {
     return result
 }
 
+function getPalette(id) {
+    "use strict";
+    var image = document.getElementById(id)
+    console.log(image)
+
+    var vibrant = new Vibrant(image)
+    var swatches = vibrant.swatches()
+    
+        for (var swatch in swatches) {
+            if (swatches.hasOwnProperty(swatch) && swatches[swatch]) {
+                if (swatch == 'Vibrant') {
+                    console.log(swatch, swatches[swatch].getHex());
+                    var swatchColor = swatches[swatch].getHex()
+                    $('#colorBlock').css('background-color', swatchColor)
+                }
+            }
+        }
+}
+
 async function main() {
     //var ip = prompt('enter ip:');
     //connectToBridge(ip)
@@ -177,10 +196,18 @@ async function main() {
     console.log(token)
     console.log(refresh)
 
-    image = await getCurrentSong(refresh)
-    console.log(image)
-    $('#currentAlbum').attr('src', image)
-
+    setInterval(async function(){
+        image = await getCurrentSong(refresh)
+        console.log(image)
+        $('#currentAlbum').attr('src', image)
+    }, 2000);
 }
 
-$(document).ready(main);
+
+$(document).ready(function() {
+    main()
+    document.getElementById('currentAlbum').addEventListener('load', function() {
+        console.log('LOADED')
+        getPalette('currentAlbum')
+    })    
+});
