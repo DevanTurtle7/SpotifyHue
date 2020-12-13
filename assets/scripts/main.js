@@ -36,7 +36,7 @@ function pingBridge(ip) {
                 }
             },
             error: function (data) {
-                console.log('error!')
+                console.log('error pinging bridge')
                 console.log(data)
                 reject('error')
             }
@@ -101,6 +101,7 @@ async function getToken(clientSecret) {
                 resolve(data)
             },
             error: function (data) {
+                console.log('error getting token')
                 console.log(data)
                 reject('token error')
             }
@@ -127,6 +128,7 @@ async function getRefreshToken(clientSecret, accessToken) {
                 resolve(data.access_token);
             },
             error: function (data) {
+                console.log('error getting refresh token')
                 reject('token refresh error')
             }
         })
@@ -159,6 +161,7 @@ async function getCurrentSong(refreshToken) {
                     }
                 }
             }, error: function (data) {
+                console.log('error getting current song')
                 reject('error')
             }
         })
@@ -215,40 +218,18 @@ function setLights(username, ip, xy) {
     $('.lightCheckbox').each(function(index, obj) {
         if ($(obj).prop('checked') == true) {
             var lightNum = $(obj).prop('value')
-            console.log('changing light ' + lightNum)
 
             $.ajax({
                 type: 'PUT',
                 url: url + '/' + lightNum.toString() + '/state',
                 data: JSON.stringify({ 'xy': xy }),
                 error: function (data) {
-                    console.log('error!')
+                    console.log('error changing light ' + lightNum)
                     console.log(data)
                 }
             })
         }
     });
-
-    /*
-    $.ajax({
-        type: 'GET',
-        url: url,
-        success: function (data) {
-            for (var obj in data) {
-                if (data[obj].type == "Extended color light" && data[obj].state.on == true) {
-                    $.ajax({
-                        type: 'PUT',
-                        url: url + '/' + obj.toString() + '/state',
-                        data: JSON.stringify({ 'xy': xy }),
-                        error: function (data) {
-                            console.log('error!')
-                            console.log(data)
-                        }
-                    })
-                }
-            }
-        }
-    }) */
 }
 
 function lightSelectorSetup() {
