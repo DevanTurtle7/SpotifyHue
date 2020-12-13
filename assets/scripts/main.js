@@ -223,7 +223,7 @@ function getXY(color) {
 function setLights(username, ip, xy) {
     var url = 'https://' + ip + '/api/' + username + '/lights'
 
-    $('.lightCheckbox').each(function(index, obj) {
+    $('.lightCheckbox').each(function (index, obj) {
         if ($(obj).prop('checked') == true) {
             var lightNum = $(obj).prop('value')
 
@@ -240,26 +240,48 @@ function setLights(username, ip, xy) {
     });
 }
 
-function lightSelectorSetup() {
+async function lightSelectorSetup() {
     var url = 'https://' + ip + '/api/' + username + '/lights'
 
-    $.ajax({
-        type: 'GET',
-        url: url,
-        success: function (data) {
-            for (var obj in data) {
-                if (data[obj].type == "Extended color light") {
-                    var name = 'light' + obj.toString() + 'Selector'
-                    var text = data[obj].name
-                    var newCheckbox = '<input checked type="checkbox" class="lightCheckbox" id="' + name + '" value="' + obj + '">'
-                    var checkboxLabel = '<label for="' + name + '">' + text + '</label><br>'
+    const done = new Promise(function (resolve, reject) {
+        $.ajax({
+            type: 'GET',
+            url: url,
+            success: function (data) {
+                for (var obj in data) {
+                    if (data[obj].type == "Extended color light") {
+                        var name = 'light' + obj.toString() + 'Selector'
+                        var text = data[obj].name
+                        var checked = true
 
-                    $('#lightSelector').append(newCheckbox)
-                    $('#lightSelector').append(checkboxLabel)
+                        if (localStorage.getItem(text + 'On') != null) {
+                            checked = JSON.parse(localStorage.getItem(text + 'On'))
+                        } else {
+                            localStorage.setItem(text + 'On', true)
+                        }
+
+                        var checkedText = checked ? 'checked' : ''
+
+                        var newCheckbox = '<input ' + checkedText + ' type="checkbox" class="lightCheckbox" id="' + name + '" value="' + obj + '">'
+                        var checkboxLabel = '<label for="' + name + '">' + text + '</label><br>'
+
+                        $('#lightSelector').append(newCheckbox)
+                        $('#lightSelector').append(checkboxLabel)
+                    }
                 }
+                resolve()
             }
-        }
+        })
     })
+
+    await done
+
+    $('.lightCheckbox').each(function (index, obj) {
+        $(obj).on('change', function () {
+            var text = $("label[for='" + obj.id + "']").text()
+            localStorage.setItem(text + 'On', $(obj).prop('checked'))
+        })
+    });
 }
 
 function updateStatus(message) {
