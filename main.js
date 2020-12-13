@@ -69,7 +69,7 @@ async function getToken(clientSecret) {
     var responseQuery = window.location.search
     var re = /[&?]code=([^&]*)/
     var code
-    
+
     try {
         code = re.exec(responseQuery)[1]
     } catch {
@@ -90,7 +90,6 @@ async function getToken(clientSecret) {
                 'Authorization': 'Basic ' + btoa(client_id + ':' + clientSecret)
             },
             success: function (data) {
-                console.log(data)
                 resolve(data)
             },
             error: function (data) {
@@ -141,8 +140,12 @@ async function getCurrentSong(refreshToken) {
                 'Content-Type': 'application/json',
                 'Authorization': 'Bearer ' + accessToken
             }, success: function (data) {
-                var image = data.item.album.images[0].url
-                resolve(image)
+                if (data == null) {
+                    resolve(null)
+                } else {
+                    var image = data.item.album.images[0].url
+                    resolve(image)
+                }
             }, error: function (data) {
                 reject('error')
             }
@@ -163,12 +166,27 @@ function getPalette(id) {
 }
 
 async function setup() {
+    var time = new Date().getTime() / 1000
+
     var clientSecret = await getClientSecret();
-    var tokenData = await getToken(clientSecret);
-    var token = tokenData.access_token
-    var refresh = tokenData.refresh_token
-    
-    return refresh
+    try {
+        var tokenData = await getToken(clientSecret);
+        var token = tokenData.access_token
+        var refresh = tokenData.refresh_token
+    } catch {
+        window.location.replace("")
+    }
+
+    if (refresh != null) {
+        // User is logged in
+        localStorage.setItem('refreshToken', refresh)
+        localStorage.setItem('expires', time + 3600)
+
+        return refresh
+    } else {
+        // User is not logged in
+        spotifyLogin()
+    }
 }
 
 async function main() {
@@ -189,26 +207,21 @@ async function main() {
 
     var refreshToken
     var time = new Date().getTime() / 1000
+    var clientSecret = await getClientSecret()
 
     if (localStorage.getItem('expires') == null) {
+        // New user
         refreshToken = await setup()
-        if (refreshToken != null) {
-            localStorage.setItem('refreshToken', refreshToken)
-            localStorage.setItem('expires', time + 3600)
-        } else {
-            spotifyLogin()
-        }
     } else {
         var expires = localStorage.getItem('expires')
         if (time < expires) {
+            // Token has not expired yet
             refreshToken = localStorage.getItem('refreshToken')
         } else {
-            spotifyLogin()
+            // Token has expired
+            refreshToken = await setup()
         }
     }
-
-    console.log(1)
-    console.log(2)
 
     setInterval(async function () {
         image = await getCurrentSong(refreshToken)
