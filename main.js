@@ -151,8 +151,12 @@ async function getCurrentSong(refreshToken) {
                 if (data == null) {
                     resolve(null)
                 } else {
-                    var image = data.item.album.images[0].url
-                    resolve(image)
+                    if (data.item == null) {
+                        resolve(null)
+                    } else {
+                        var image = data.item.album.images[0].url
+                        resolve(image)
+                    }
                 }
             }, error: function (data) {
                 reject('error')
@@ -212,7 +216,7 @@ function setLights(username, ip, xy) {
         url: url,
         success: function (data) {
             for (var obj in data) {
-                if (data[obj].type == "Extended color light") {
+                if (data[obj].type == "Extended color light" && data[obj].state.on == true) {
                     $.ajax({
                         type: 'PUT',
                         url: url + '/' + obj.toString() + '/state',
