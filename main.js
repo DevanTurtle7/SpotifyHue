@@ -21,44 +21,52 @@ const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
 
 function pingBridge(ip) {
     var username = generateUsername();
-    $.ajax({
-        url: 'https://' + ip + '/api',
-        type: 'POST',
-        data: JSON.stringify({ 'devicetype': username }),
-        success: function (data) {
-            console.log(data);
-            if (data[0].error != null) {
-                return null
-            } else {
-                var username = data[0].success.username
-                return username
+    const result = new Promise(function (resolve, reject) {
+        $.ajax({
+            url: 'https://' + ip + '/api',
+            type: 'POST',
+            data: JSON.stringify({ 'devicetype': username }),
+            success: function (data) {
+                console.log(data);
+                if (data[0].error != null) {
+                    resolve(null)
+                } else {
+                    var username = data[0].success.username
+                    resolve(username)
+                }
+            },
+            error: function (data) {
+                console.log('error!')
+                console.log(data)
+                reject('error')
             }
-        },
-        error: function (data) {
-            console.log('error!')
-            console.log(data)
-        }
+        })
     })
+
+    return result
 }
 
 async function connectToBridge(ip) {
-    // Try refactoring with promises
     var connectedToBridge = false;
     var bridgeUsername = ''
 
-    while (!connectedToBridge) {
-        var response = pingBridge(ip)
-
-        if (response != null) {
-            bridgeUsername = response
-            connectedToBridge = true;
+    const result = new Promise(async function (resolve, reject) {
+        while (!connectedToBridge) {
+            var response = await pingBridge(ip)
+    
+            if (response != null) {
+                bridgeUsername = response
+                connectedToBridge = true;
+            }
+    
+            await sleep(5000)
         }
-
-        await sleep(5000)
-    }
-    console.log(response)
-
-    return bridgeUsername
+        console.log(response)
+    
+        resolve(bridgeUsername)
+    })
+    
+    return result
 }
 
 function spotifyLogin() {
@@ -202,9 +210,6 @@ async function main() {
 
     db = firebase.firestore()
 
-    //var ip = prompt('enter ip:');
-    //connectToBridge(ip)
-
     var refreshToken
     var time = new Date().getTime() / 1000
     var clientSecret = await getClientSecret()
@@ -222,6 +227,10 @@ async function main() {
             refreshToken = await setup()
         }
     }
+
+    var ip = prompt('enter ip:');
+    var username = await connectToBridge(ip)
+    console.log('username is ' + username.toString())
 
     setInterval(async function () {
         image = await getCurrentSong(refreshToken)
