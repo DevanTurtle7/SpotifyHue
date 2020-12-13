@@ -40,6 +40,9 @@ function pingBridge(ip) {
                 }
             },
             error: function (data) {
+                alert('Trust this website and then come back')
+                window.open('https://' + url + '/api')
+                
                 console.log('error pinging bridge')
                 console.log(data)
                 reject('error')
@@ -360,7 +363,7 @@ async function main() {
         username = localStorage.getItem('username')
     }
 
-    lightSelectorSetup()
+    await lightSelectorSetup()
 
     updateStatus('Connected')
 
