@@ -29,7 +29,11 @@ function pingBridge(ip) {
             success: function (data) {
                 console.log(data);
                 if (data[0].error != null) {
-                    resolve(null)
+                    if (data[0].error.description = 'link button not pressed') {
+                        resolve('link button')
+                    } else {
+                        resolve(null)
+                    }
                 } else {
                     var username = data[0].success.username
                     resolve(username)
@@ -55,8 +59,12 @@ async function connectToBridge(ip) {
             var response = await pingBridge(ip)
 
             if (response != null) {
-                bridgeUsername = response
-                connectedToBridge = true;
+                if (response == 'link button') {
+                    updateStatus('Press the Philips Hue link button')
+                } else {
+                    bridgeUsername = response
+                    connectedToBridge = true;
+                }
             }
 
             await sleep(5000)
@@ -254,6 +262,10 @@ function lightSelectorSetup() {
     })
 }
 
+function updateStatus(message) {
+    $('#status').text(message)
+}
+
 async function setup() {
     var time = new Date().getTime() / 1000
 
@@ -327,6 +339,8 @@ async function main() {
     }
 
     lightSelectorSetup()
+
+    updateStatus('Connected')
 
     setInterval(async function () {
         image = await getCurrentSong(refreshToken)
