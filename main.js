@@ -14,7 +14,7 @@ async function getClientSecret() {
 }
 
 function generateUsername() {
-    return 'temporaryUsername'
+    return 'spotify-hue'
 }
 
 const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
@@ -53,19 +53,19 @@ async function connectToBridge(ip) {
     const result = new Promise(async function (resolve, reject) {
         while (!connectedToBridge) {
             var response = await pingBridge(ip)
-    
+
             if (response != null) {
                 bridgeUsername = response
                 connectedToBridge = true;
             }
-    
+
             await sleep(5000)
         }
         console.log(response)
-    
+
         resolve(bridgeUsername)
     })
-    
+
     return result
 }
 
@@ -170,7 +170,62 @@ function getPalette(id) {
     var vibrant = new Vibrant(image)
     var swatches = vibrant.swatches()
 
-    return swatches.Vibrant.getHex()
+    return swatches.Vibrant.rgb
+}
+
+function getXY(color) {
+    var red = color[0]
+    var green = color[1]
+    var blue = color[2]
+
+    if (red > 0.04045) {
+        red = Math.pow((red + 0.055) / (1.0 + 0.055), 2.4)
+    } else {
+        red = (red / 12.92)
+    }
+
+    if (green > 0.04045) {
+        green = Math.pow((green + 0.055) / (1.0 + 0.055), 2.4)
+    } else {
+        green = (green / 12.92)
+    }
+
+    if (blue > 0.04045) {
+        blue = Math.pow((blue + 0.055) / (1.0 + 0.055), 2.4)
+    } else {
+        blue = (blue / 12.92)
+    }
+
+    var X = red * 0.664511 + green * 0.154324 + blue * 0.162028
+    var Y = red * 0.283881 + green * 0.668433 + blue * 0.047685
+    var Z = red * 0.000088 + green * 0.072310 + blue * 0.986039
+    var x = X / (X + Y + Z)
+    var y = Y / (X + Y + Z)
+
+    return [x, y]
+}
+
+function setLights(username, ip, xy) {
+    var url = 'https://' + ip + '/api/' + username + '/lights'
+    $.ajax({
+        type: 'GET',
+        url: url,
+        success: function (data) {
+            for (var obj in data) {
+                if (data[obj].type == "Extended color light") {
+                    $.ajax({
+                        type: 'PUT',
+                        url: url + '/' + obj.toString() + '/state',
+                        data: JSON.stringify({ 'xy': xy }),
+                        error: function (data) {
+                            console.log('error!')
+                            console.log(data)
+                        }
+                    })
+                }
+            }
+        }
+    })
 }
 
 async function setup() {
@@ -196,6 +251,9 @@ async function setup() {
         spotifyLogin()
     }
 }
+
+var username = "";
+var ip = ""
 
 async function main() {
     firebase.initializeApp({
@@ -228,21 +286,37 @@ async function main() {
         }
     }
 
-    var ip = prompt('enter ip:');
-    var username = await connectToBridge(ip)
-    console.log('username is ' + username.toString())
+    ip = prompt('enter ip:');
+
+    if (localStorage.getItem('username') == null) {
+        username = await connectToBridge(ip)
+        localStorage.setItem('username', username)
+    } else {
+        username = localStorage.getItem('username')
+    }
+
 
     setInterval(async function () {
         image = await getCurrentSong(refreshToken)
         $('#currentAlbum').attr('src', image)
-    }, 2000);
+    }, 1000);
 }
-
 
 $(document).ready(function () {
     main()
+
+    var lastXY
     document.getElementById('currentAlbum').addEventListener('load', function () {
         var color = getPalette('currentAlbum')
-        $('#colorBlock').css('background-color', color)
+        $('#colorBlock').css('background-color', 'rgb(' + color.toString() + ')')
+
+        var xy = getXY(color)
+
+        if (lastXY != xy) {
+            lastXY = xy
+            if (username != "" && ip != "") {
+                setLights(username, ip, xy)
+            }
+        }
     })
 });
