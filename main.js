@@ -290,7 +290,12 @@ async function main() {
         }
     }
 
-    ip = prompt('enter ip:');
+    if (localStorage.getItem('ip') == null) {
+        ip = prompt('enter ip:');
+        localStorage.setItem('ip', ip)
+    } else {
+        ip = localStorage.getItem('ip')
+    }
 
     if (localStorage.getItem('username') == null) {
         username = await connectToBridge(ip)
