@@ -211,6 +211,25 @@ function getXY(color) {
 
 function setLights(username, ip, xy) {
     var url = 'https://' + ip + '/api/' + username + '/lights'
+
+    $('.lightCheckbox').each(function(index, obj) {
+        if ($(obj).prop('checked') == true) {
+            var lightNum = $(obj).prop('value')
+            console.log('changing light ' + lightNum)
+
+            $.ajax({
+                type: 'PUT',
+                url: url + '/' + lightNum.toString() + '/state',
+                data: JSON.stringify({ 'xy': xy }),
+                error: function (data) {
+                    console.log('error!')
+                    console.log(data)
+                }
+            })
+        }
+    });
+
+    /*
     $.ajax({
         type: 'GET',
         url: url,
@@ -226,6 +245,28 @@ function setLights(username, ip, xy) {
                             console.log(data)
                         }
                     })
+                }
+            }
+        }
+    }) */
+}
+
+function lightSelectorSetup() {
+    var url = 'https://' + ip + '/api/' + username + '/lights'
+
+    $.ajax({
+        type: 'GET',
+        url: url,
+        success: function (data) {
+            for (var obj in data) {
+                if (data[obj].type == "Extended color light") {
+                    var name = 'light' + obj.toString() + 'Selector'
+                    var text = data[obj].name
+                    var newCheckbox = '<input checked type="checkbox" class="lightCheckbox" id="' + name + '" value="' + obj + '">'
+                    var checkboxLabel = '<label for="' + name + '">' + text + '</label><br>'
+
+                    $('#lightSelector').append(newCheckbox)
+                    $('#lightSelector').append(checkboxLabel)
                 }
             }
         }
@@ -304,6 +345,7 @@ async function main() {
         username = localStorage.getItem('username')
     }
 
+    lightSelectorSetup()
 
     setInterval(async function () {
         image = await getCurrentSong(refreshToken)
