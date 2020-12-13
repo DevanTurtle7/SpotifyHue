@@ -1,4 +1,7 @@
 async function getClientSecret() {
+    /*
+    Gets the client secret from firestore
+    */
     var docRef = db.collection('credentials').doc('client_secret')
 
     var data = await docRef.get().then(function (doc) {
@@ -14,35 +17,53 @@ async function getClientSecret() {
 }
 
 function generateUsername() {
+    /*
+    Generates a Philips hue username
+    */
     return 'spotify-hue'
 }
 
 const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
 
+var visitedCertificate = false
+
 function pingBridge(ip) {
-    var username = generateUsername();
-    const result = new Promise(function (resolve, reject) {
+    /*
+    Pings the bridge to try to connect
+
+    IP: 
+    */
+    var username = generateUsername(); // Get the username
+    
+    const result = new Promise(function (resolve, reject) { // Create a promise
         $.ajax({
             url: 'https://' + ip + '/api',
             type: 'POST',
             data: JSON.stringify({ 'devicetype': username }),
             success: function (data) {
-                console.log(data);
                 if (data[0].error != null) {
+                    // Did not connect to bridge
                     if (data[0].error.description = 'link button not pressed') {
-                        resolve('link button')
+                        // The user needs to press the link button
+                        resolve('link button') // Resolve the promise
                     } else {
-                        resolve(null)
+                        // Error
+                        resolve(null) // Resolve the promise
                     }
                 } else {
-                    var username = data[0].success.username
-                    resolve(username)
+                    // Connected to bridge
+                    var username = data[0].success.username // Get the username from response
+                    resolve(username) // Resolve the promise
                 }
             },
             error: function (data) {
-                alert('Trust this website and then come back')
-                window.open('https://' + url + '/api')
-                
+                // The api website's certificate is not trust
+                if (!visitedCertificate) {
+                    visitedCertificate = true
+                    alert('Trust this website and then come back') // Alert the user
+                    window.open('https://' + url + '/api') // Go to the website so the user can certify
+                }
+
                 console.log('error pinging bridge')
                 console.log(data)
                 reject('error')
@@ -50,7 +71,7 @@ function pingBridge(ip) {
         })
     })
 
-    return result
+    return result // Return the data
 }
 
 async function connectToBridge(ip) {
