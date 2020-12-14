@@ -61,11 +61,11 @@ function pingBridge(ip) {
                 // The api website's certificate is not trust
                 console.log('error pinging bridge')
                 console.log(data)
-                
+
                 if (!visitedCertificate) {
                     visitedCertificate = true
                     alert('Trust this website and then come back') // Alert the user
-                    window.open('https://' + url + '/api') // Go to the website so the user can certify
+                    window.open('https://' + ip + '/api') // Go to the website so the user can certify
                 }
 
                 reject('error')
