@@ -31,7 +31,8 @@ function pingBridge(ip) {
     /*
     Pings the bridge to try to connect
 
-    IP: 
+    Parameters:
+        ip: The philips hue bridge ip
     */
     var username = generateUsername(); // Get the username
     
@@ -75,48 +76,68 @@ function pingBridge(ip) {
 }
 
 async function connectToBridge(ip) {
-    var connectedToBridge = false;
-    var bridgeUsername = ''
+    /*
+    Connects to philips hue bridge
 
-    const result = new Promise(async function (resolve, reject) {
-        while (!connectedToBridge) {
-            var response = await pingBridge(ip)
+    Parameters:
+        ip: The philips hue bridge ip
+    */
+    var connectedToBridge = false;
+    var bridgeUsername
+
+    const result = new Promise(async function (resolve, reject) { // Create a promise
+        while (!connectedToBridge) { // Loop until connected to the bridge
+            var response = await pingBridge(ip) // Ping the bridge
 
             if (response != null) {
                 if (response == 'link button') {
+                    // Alert the user to press the link button
                     updateStatus('Press the Philips Hue link button')
                 } else {
+                    // Connected to the bridge
                     bridgeUsername = response
                     connectedToBridge = true;
                 }
             }
 
-            await sleep(5000)
+            await sleep(5000) // Wait
         }
         console.log(response)
 
-        resolve(bridgeUsername)
+        resolve(bridgeUsername) // Resolve the promise
     })
 
-    return result
+    return result // Return the response
 }
 
 function spotifyLogin() {
+    /*
+    Redirects the user to the spotify login
+    */
     location.replace('https://accounts.spotify.com/authorize?response_type=code&client_id=' + client_id + '&redirect_uri=' + redirect_uri + '&scope=user-read-currently-playing');
 }
 
 async function getToken(clientSecret) {
-    var responseQuery = window.location.search
+    /*
+    Gets an access token for the Spotify API
+
+    Parameters:
+        clientSecret: The Spotify API client secret
+    */
+    var responseQuery = window.location.search // Get the code in the URL returned from the Spotify login
+    // The regex for getting the code
     var re = /[&?]code=([^&]*)/
     var code
 
     try {
-        code = re.exec(responseQuery)[1]
+        code = re.exec(responseQuery)[1] // Get the code
     } catch {
+        // The window location is empty. Login to spotify
         spotifyLogin()
     }
 
-    const result = new Promise(function (resolve, reject) {
+    const result = new Promise(function (resolve, reject) { // Create a promise
+        // Request the access token
         $.ajax({
             type: 'POST',
             url: 'https://accounts.spotify.com/api/token',
@@ -126,47 +147,56 @@ async function getToken(clientSecret) {
                 'redirect_uri': redirect_uri,
             },
             headers: {
+                // Headers as outline by the Spotify API
                 'Content-Type': 'application/x-www-form-urlencoded',
                 'Authorization': 'Basic ' + btoa(client_id + ':' + clientSecret)
             },
             success: function (data) {
-                resolve(data)
+                resolve(data) // Resolve the promise
             },
             error: function (data) {
                 console.log('error getting token')
                 console.log(data)
-                reject('token error')
+                reject('token error') // Reject the promise
             }
         })
     })
 
-    return result
+    return result // Return the response
 }
 
-async function getRefreshToken(clientSecret, accessToken) {
-    const result = new Promise(function (resolve, reject) {
+async function getRefreshToken(clientSecret, refreshToken) {
+    /*
+    Get a refresh token
+
+    Parameters:
+        clientSecret: The Spotify API client secret
+        refreshToken: The refresh token gotten from getToken()
+    */
+    const result = new Promise(function (resolve, reject) { // Create a promise
         $.ajax({
             type: 'POST',
             url: 'https://accounts.spotify.com/api/token',
             data: {
                 'grant_type': 'refresh_token',
-                'refresh_token': accessToken,
+                'refresh_token': refreshToken,
             },
             headers: {
+                // Headers as outline by the Spotify API
                 'Content-Type': 'application/x-www-form-urlencoded',
                 'Authorization': 'Basic ' + btoa(client_id + ':' + clientSecret)
             },
             success: function (data) {
-                resolve(data.access_token);
+                resolve(data.access_token); // Resolve the promise with the token
             },
             error: function (data) {
                 console.log('error getting refresh token')
-                reject('token refresh error')
+                reject('token refresh error') // Reject the promise
             }
         })
     })
 
-    return result
+    return result // Return the response
 }
 
 async function getCurrentSong(refreshToken) {
