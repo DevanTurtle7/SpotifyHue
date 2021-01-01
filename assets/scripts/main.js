@@ -437,6 +437,7 @@ $(document).ready(function () {
     document.getElementById('currentAlbum').addEventListener('load', function () {
         var color = getPalette('currentAlbum')
         $('#colorBlock').css('background-color', 'rgb(' + color.toString() + ')')
+        $('#currentAlbum').css('box-shadow', '0px 0px 30px 5px rgb(' + color.toString() + ')')
 
         var xy = getXY(color)
 
