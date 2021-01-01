@@ -10,3 +10,7 @@
     height: 100px;
     border-style: solid;
 }
+
+#trustButton {
+    display: none;
+}

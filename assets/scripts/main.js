@@ -25,8 +25,6 @@ function generateUsername() {
 
 const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
 
-var visitedCertificate = false
-
 function pingBridge(ip) {
     /*
     Pings the bridge to try to connect
@@ -35,10 +33,11 @@ function pingBridge(ip) {
         ip: The philips hue bridge ip
     */
     var username = generateUsername(); // Get the username
+    var url = 'https://' + ip + '/api'
     
     const result = new Promise(function (resolve, reject) { // Create a promise
         $.ajax({
-            url: 'https://' + ip + '/api',
+            url: url,
             type: 'POST',
             data: JSON.stringify({ 'devicetype': username }),
             success: function (data) {
@@ -62,11 +61,7 @@ function pingBridge(ip) {
                 console.log('error pinging bridge')
                 console.log(data)
 
-                if (!visitedCertificate) {
-                    visitedCertificate = true
-                    alert('Trust this website and then come back') // Alert the user
-                    window.open('https://' + ip + '/api') // Go to the website so the user can certify
-                }
+                updateStatus('Untrusted API', url)
 
                 reject('error')
             }
@@ -325,6 +320,9 @@ async function lightSelectorSetup() {
                     }
                 }
                 resolve()
+            }, error: function(data) {
+                updateStatus('Untrusted API', url)
+                reject('Untrusted API')
             }
         })
     })
@@ -339,8 +337,14 @@ async function lightSelectorSetup() {
     });
 }
 
-function updateStatus(message) {
+function updateStatus(message, apiLink=null) {
     $('#status').text(message)
+    if (apiLink != null) {
+        $('#trustButton').attr('href', apiLink)
+        $('#trustButton').show()
+    } else {
+        $('#trustButton').hide()
+    }
 }
 
 async function setup() {
