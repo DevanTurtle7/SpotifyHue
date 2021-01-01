@@ -25,8 +25,6 @@ function generateUsername() {
 
 const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
 
-var visitedCertificate = false
-
 function pingBridge(ip) {
     /*
     Pings the bridge to try to connect
@@ -38,7 +36,7 @@ function pingBridge(ip) {
     
     const result = new Promise(function (resolve, reject) { // Create a promise
         $.ajax({
-            url: 'https://' + ip + '/api',
+            url: 'http://' + ip + '/api',
             type: 'POST',
             data: JSON.stringify({ 'devicetype': username }),
             success: function (data) {
@@ -61,12 +59,6 @@ function pingBridge(ip) {
                 // The api website's certificate is not trust
                 console.log('error pinging bridge')
                 console.log(data)
-
-                if (!visitedCertificate) {
-                    visitedCertificate = true
-                    alert('Trust this website and then come back') // Alert the user
-                    window.open('https://' + ip + '/api') // Go to the website so the user can certify
-                }
 
                 reject('error')
             }
@@ -276,7 +268,7 @@ function getXY(color) {
 }
 
 function setLights(username, ip, xy) {
-    var url = 'https://' + ip + '/api/' + username + '/lights'
+    var url = 'http://' + ip + '/api/' + username + '/lights'
 
     $('.lightCheckbox').each(function (index, obj) {
         if ($(obj).prop('checked') == true) {
@@ -296,7 +288,7 @@ function setLights(username, ip, xy) {
 }
 
 async function lightSelectorSetup() {
-    var url = 'https://' + ip + '/api/' + username + '/lights'
+    var url = 'http://' + ip + '/api/' + username + '/lights'
 
     const done = new Promise(function (resolve, reject) {
         $.ajax({
