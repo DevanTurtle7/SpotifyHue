@@ -9,8 +9,14 @@
     width: 100px;
     height: 100px;
     border-style: solid;
+    border-color: black
 }
 
 #trustButton {
     display: none;
+}
+
+body {
+    background-color: #17171a;
+    color: white;
 }
