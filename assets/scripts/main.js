@@ -291,7 +291,8 @@ function setLights(username, ip, xy) {
 }
 
 async function lightSelectorSetup() {
-    var url = 'https://' + ip + '/api/' + username + '/lights'
+    var baseUrl = 'https://' + ip + '/api/'
+    var url = baseUrl + username + '/lights'
 
     const done = new Promise(function (resolve, reject) {
         $.ajax({
@@ -321,7 +322,7 @@ async function lightSelectorSetup() {
                 }
                 resolve()
             }, error: function(data) {
-                updateStatus('Untrusted API', url)
+                updateStatus('Untrusted API', baseUrl)
                 reject('Untrusted API')
             }
         })
