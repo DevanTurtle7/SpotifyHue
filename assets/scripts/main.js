@@ -413,6 +413,8 @@ async function main() {
         ip = localStorage.getItem('ip')
     }
 
+    $('#ipAddress').text(ip)
+
     if (localStorage.getItem('username') == null) {
         username = await connectToBridge(ip)
         localStorage.setItem('username', username)
@@ -429,6 +431,8 @@ async function main() {
         $('#currentAlbum').attr('src', image)
     }, 1000);
 }
+
+
 
 $(document).ready(function () {
     main()
@@ -448,4 +452,12 @@ $(document).ready(function () {
             }
         }
     })
+
+    $('#disconnectButton').click(function() {
+        localStorage.removeItem('ip')
+        ip = prompt('enter ip:');
+        localStorage.setItem('ip', ip)
+        $('#ipAddress').text(ip)
+    })
 });
+
