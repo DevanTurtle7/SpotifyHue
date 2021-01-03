@@ -458,6 +458,7 @@ $(document).ready(function () {
         ip = prompt('enter ip:');
         localStorage.setItem('ip', ip)
         $('#ipAddress').text(ip)
+        // May need to refresh or reset the program to connect to the new bridge
     })
 });
 
